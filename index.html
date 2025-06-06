@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025年时间进度</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Roboto', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .progress-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            transition: all 0.3s ease;
+        }
+        
+        .progress-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .year-title {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 25px;
+            color: #333;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .year-title::after {
+            content: "";
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #4CAF50, #2E7D32);
+            margin: 10px auto 0;
+            border-radius: 3px;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #555;
+        }
+        
+        .progress-bar {
+            height: 40px;
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #2E7D32);
+            border-radius: 20px;
+            transition: width 1s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            color: white;
+            font-weight: 500;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0.1) 100%
+            );
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .progress-details {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        
+        .detail-item {
+            flex: 1;
+        }
+        
+        .detail-value {
+            font-size: 24px;
+            font-weight: 500;
+            color: #2E7D32;
+            margin-bottom: 5px;
+        }
+        
+        .detail-label {
+            font-size: 14px;
+            color: #777;
+        }
+        
+        .season-markers {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .marker {
+            position: relative;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .marker::before {
+            content: "";
+            display: block;
+            width: 1px;
+            height: 8px;
+            background: #ccc;
+            margin: 0 auto 5px;
+        }
+        
+        @media (max-width: 480px) {
+            .progress-card {
+                padding: 20px;
+            }
+            
+            .year-title {
+                font-size: 24px;
+            }
+            
+            .progress-details {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-card">
+        <div class="year-title">2025年时间进度</div>
+        
+        <div class="progress-info">
+            <span id="current-date">2025年1月1日</span>
+            <span id="progress-percent">0%</span>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 0%;">0%</div>
+        </div>
+        
+        <div class="season-markers">
+            <div class="marker">春季</div>
+            <div class="marker">夏季</div>
+            <div class="marker">秋季</div>
+            <div class="marker">冬季</div>
+        </div>
+        
+        <div class="progress-details">
+            <div class="detail-item">
+                <div class="detail-value" id="passed-days">0</div>
+                <div class="detail-label">已过天数</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-value" id="remaining-days">365</div>
+                <div class="detail-label">剩余天数</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-value" id="progress-percent-big">0%</div>
+                <div class="detail-label">完成进度</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateProgress() {
+            // 获取2025年的第一天和最后一天
+            const startDate = new Date(2025, 0, 1);  // 2025年1月1日
+            const endDate = new Date(2025, 11, 31);   // 2025年12月31日
+            const today = new Date();
+            
+            // 如果当前不是2025年，则使用2025年的最后一天来计算
+            const currentDate = today.getFullYear() === 2025 ? today : endDate;
+            
+            // 计算总天数
+            const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
+            
+            // 计算已过天数
+            const passedDays = (currentDate - startDate) / (1000 * 60 * 60 * 24) + 1;
+            const remainingDays = totalDays - passedDays;
+            
+            // 计算百分比
+            const percent = Math.round((passedDays / totalDays) * 100 * 10) / 10; // 保留一位小数
+            
+            // 格式化日期
+            const formattedDate = `2025年${currentDate.getMonth() + 1}月${currentDate.getDate()}日`;
+            
+            // 更新显示
+            document.getElementById('current-date').textContent = formattedDate;
+            document.getElementById('progress-percent').textContent = `${percent}%`;
+            document.getElementById('progress-fill').style.width = `${percent}%`;
+            document.getElementById('progress-fill').textContent = `${percent}%`;
+            document.getElementById('passed-days').textContent = Math.floor(passedDays);
+            document.getElementById('remaining-days').textContent = Math.floor(remainingDays);
+            document.getElementById('progress-percent-big').textContent = `${percent}%`;
+        }
+        
+        // 页面加载时更新
+        updateProgress();
+        
+        // 如果是2025年，每天更新一次
+        if (new Date().getFullYear() === 2025) {
+            setInterval(updateProgress, 86400000); // 24小时更新一次
+        }
+    </script>
+</body>
+</html>
