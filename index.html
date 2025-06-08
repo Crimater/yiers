@@ -285,40 +285,43 @@
         let targetDate = new Date(2025, 11, 31);
         document.getElementById('target-date').valueAsDate = targetDate;
         
-        // 使用固定日期测试 (2025年6月7日)
-        const today = new Date(2025, 5, 7);
-        // 实际使用时请使用下面这行
-        // const today = new Date();
+        // 使用当前实际日期
+        const today = new Date();
         
         function updateCountdown() {
-            const timeDiff = targetDate - today;
+            // 每次更新时获取当前最新时间
+            const now = new Date();
+            const timeDiff = targetDate - now;
             const isExpired = timeDiff <= 0;
             const progressFill = document.getElementById('progress-fill');
             
             // 更新当前日期显示
-            document.getElementById('current-date').innerHTML = `<i class="fas fa-calendar-day"></i> 今天: ${formatDate(today)}`;
+            document.getElementById('current-date').innerHTML = `<i class="fas fa-calendar-day"></i> 今天: ${formatDate(now)}`;
             
             // 计算剩余天数
             const remainingDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
             
             // 计算剩余月数
-            let remainingMonths = (targetDate.getFullYear() - today.getFullYear()) * 12 
-                               + (targetDate.getMonth() - today.getMonth());
-            if (today.getDate() > targetDate.getDate()) {
+            let remainingMonths = (targetDate.getFullYear() - now.getFullYear()) * 12 
+                               + (targetDate.getMonth() - now.getMonth());
+            if (now.getDate() > targetDate.getDate()) {
                 remainingMonths--;
             }
             remainingMonths = Math.max(0, remainingMonths);
             
-            // 计算百分比 (基于从今天到目标日期的天数)
-            // 这里简化计算，使用固定的一年天数作为基准
-            const percent = Math.min(100, Math.round((1 - remainingDays/365) * 100));
+            // 计算从今天到目标日期的总天数
+            const totalDays = Math.ceil((targetDate - new Date(now.getFullYear(), 0, 1)) / (1000 * 60 * 60 * 24));
+            // 计算已过天数
+            const passedDays = Math.ceil((now - new Date(now.getFullYear(), 0, 1)) / (1000 * 60 * 60 * 24));
+            // 计算百分比
+            const percent = Math.min(100, Math.round((passedDays / totalDays) * 100));
             
             // 更新显示
             document.getElementById('progress-percent').textContent = `${percent}%`;
             progressFill.style.width = `${percent}%`;
             progressFill.textContent = `${percent}%`;
-            document.getElementById('remaining-days').textContent = remainingDays;
-            document.getElementById('remaining-months').textContent = remainingMonths;
+            document.getElementById('remaining-days').textContent = isExpired ? 0 : remainingDays;
+            document.getElementById('remaining-months').textContent = isExpired ? 0 : remainingMonths;
             document.getElementById('progress-percent-big').textContent = `${percent}%`;
             document.getElementById('target-display').innerHTML = `
                 <i class="fas fa-bullseye"></i> 目标日期: ${formatDate(targetDate)}
@@ -346,8 +349,8 @@
         // 页面加载时更新
         updateCountdown();
         
-        // 每天更新一次
-        setInterval(updateCountdown, 86400000);
+        // 每分钟更新一次，确保显示的时间更准确
+        setInterval(updateCountdown, 60000);
     </script>
 </body>
 </html>
